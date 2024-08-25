@@ -1,5 +1,5 @@
-import mysql from "mysql2";
-import dotenv from "dotenv";
+import mysql from 'mysql2';
+import dotenv from 'dotenv';
 dotenv.config();
 
 const pool = mysql
@@ -12,15 +12,15 @@ const pool = mysql
   .promise();
 
 export async function getAll() {
-  const [rows] = await pool.query("SELECT * FROM templates");
+  const [rows] = await pool.query('SELECT * FROM templates');
   return rows;
 }
 
-export async function getNote(id) {
+export async function getTemplate(id) {
   const [rows] = await pool.query(
     `
   SELECT * 
-  FROM notes
+  FROM templates
   WHERE id = ?
   `,
     [id]
@@ -28,14 +28,36 @@ export async function getNote(id) {
   return rows[0];
 }
 
-export async function createNote(title, contents) {
+export async function createTemplate(
+  org,
+  templateId,
+  namespace,
+  nome,
+  apelido,
+  mensagem,
+  variaveis,
+  atendimento,
+  body
+) {
   const [result] = await pool.query(
     `
-  INSERT INTO notes (title, contents)
-  VALUES (?, ?)
+  INSERT INTO templates (org,templateId,namespace,nome,apelido,mensagem,variaveis,atendimento,body)
+  VALUES (?,?,?,?,?,?,?,?,?)
   `,
-    [title, contents]
+    [
+      org,
+      templateId,
+      namespace,
+      nome,
+      apelido,
+      mensagem,
+      variaveis,
+      atendimento,
+      body,
+    ]
   );
   const id = result.insertId;
-  return getNote(id);
+  return getTemplate(id);
 }
+
+export default pool;

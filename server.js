@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 
-import { getAll, getNote, createNote } from './database.js';
+import pool, { createTemplate, getAll } from './database.js';
 
 const app = express();
 
@@ -13,15 +13,32 @@ app.get('/templates', async (req, res) => {
   res.send(templates);
 });
 
-app.get('/notes/:id', async (req, res) => {
-  const id = req.params.id;
-  const note = await getNote(id);
-  res.send(note);
-});
-
-app.post('/notes', async (req, res) => {
-  const { title, contents } = req.body;
-  const note = await createNote(title, contents);
+app.post('/templates', async (req, res) => {
+  const {
+    org,
+    templateId,
+    namespace,
+    nome,
+    apelido,
+    mensagem,
+    variaveis,
+    atendimento,
+    body,
+  } = req.body;
+  if (!org) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+  const note = await createTemplate(
+    org,
+    templateId,
+    namespace,
+    nome,
+    apelido,
+    mensagem,
+    variaveis,
+    atendimento,
+    body
+  );
   res.status(201).send(note);
 });
 
