@@ -1,7 +1,12 @@
 import express from 'express';
 import cors from 'cors';
 
-import pool, { createTemplate, getAll } from './database.js';
+import pool, {
+  createLog,
+  createTemplate,
+  getAll,
+  getLogs,
+} from './database.js';
 
 const app = express();
 
@@ -11,6 +16,11 @@ app.use(cors());
 app.get('/templates', async (req, res) => {
   const templates = await getAll();
   res.send(templates);
+});
+
+app.get('/log', async (req, res) => {
+  const log = await getLogs();
+  res.send(log);
 });
 
 app.post('/templates', async (req, res) => {
@@ -25,10 +35,10 @@ app.post('/templates', async (req, res) => {
     atendimento,
     body,
   } = req.body;
-  if (!org) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-  const note = await createTemplate(
+  // if (!org) {
+  //   return res.status(400).json({ error: 'Confira os dados enviados' });
+  // }
+  const template = await createTemplate(
     org,
     templateId,
     namespace,
@@ -39,7 +49,42 @@ app.post('/templates', async (req, res) => {
     atendimento,
     body
   );
-  res.status(201).send(note);
+  res.status(201).send(template);
+});
+
+app.post('/log', async (req, res) => {
+  const {
+    dataEnvio,
+    templateId,
+    templateName,
+    apelido,
+    agente,
+    telefone,
+    statusEnvio,
+    conversationId,
+    reqBodyLog,
+    fila,
+    queueId,
+    atendimento,
+  } = req.body;
+  if (!reqBodyLog) {
+    return res.status(400).json({ error: 'Confira os dados enviados' });
+  }
+  const log = await createLog(
+    dataEnvio,
+    templateId,
+    templateName,
+    apelido,
+    agente,
+    telefone,
+    statusEnvio,
+    conversationId,
+    reqBodyLog,
+    fila,
+    queueId,
+    atendimento
+  );
+  res.status(201).send(log);
 });
 
 app.use((err, req, res, next) => {
