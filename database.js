@@ -11,21 +11,16 @@ const pool = mysql
   })
   .promise();
 
-export async function getAll() {
-  const [rows] = await pool.query('SELECT * FROM templates');
+export async function getComentarios() {
+  const [rows] = await pool.query('SELECT * FROM comentarios');
   return rows;
 }
 
-export async function getLogs() {
-  const [rows] = await pool.query('SELECT * FROM log');
-  return rows;
-}
-
-export async function getTemplate(id) {
+export async function getComentario(id) {
   const [rows] = await pool.query(
     `
-  SELECT * 
-  FROM templates
+  SELECT *
+  FROM comentarios
   WHERE id = ?
   `,
     [id]
@@ -33,90 +28,17 @@ export async function getTemplate(id) {
   return rows[0];
 }
 
-export async function getLog(id) {
-  const [rows] = await pool.query(
-    `
-  SELECT * 
-  FROM log
-  WHERE id = ?
-  `,
-    [id]
-  );
-  return rows[0];
-}
-
-export async function createTemplate(
-  org,
-  templateId,
-  namespace,
-  nome,
-  apelido,
-  mensagem,
-  variaveis,
-  atendimento,
-  body
-) {
-  const variaveisToInsert =
-    Array.isArray(variaveis) && variaveis.length === 0 ? null : variaveis;
-
-  const [result] = await pool.query(
-    `
-  INSERT INTO templates (org,templateId,namespace,nome,apelido,mensagem,variaveis,atendimento,body)
-  VALUES (?,?,?,?,?,?,?,?,?)
-  `,
-    [
-      org,
-      templateId,
-      namespace,
-      nome,
-      apelido,
-      mensagem,
-      variaveisToInsert,
-      atendimento,
-      body,
-    ]
-  );
-  const id = result.insertId;
-  return getTemplate(id);
-}
-
-export async function createLog(
-  dataEnvio,
-  templateId,
-  templateName,
-  apelido,
-  agente,
-  telefone,
-  statusEnvio,
-  conversationId,
-  reqBody,
-  fila,
-  queueId,
-  atendimento
-) {
+export async function createComentario(projeto, nome, comentario) {
   // const variaveisToInsert = Array.isArray(variaveis) && variaveis.length === 0 ? null : variaveis;
   const [resultLog] = await pool.query(
     `
-  INSERT INTO log (dataEnvio,templateId,templateName,apelido,agente,telefone,statusEnvio,conversationId,reqBody, fila, queueId,atendimento) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+  INSERT INTO comentarios (projeto,nome,comentario) VALUES (?,?,?)
   `,
-    [
-      dataEnvio,
-      templateId,
-      templateName,
-      apelido,
-      agente,
-      telefone,
-      statusEnvio,
-      conversationId,
-      reqBody,
-      fila,
-      queueId,
-      atendimento,
-    ]
+    [projeto, nome, comentario]
   );
   const id = resultLog.insertId;
 
-  return getLog(id);
+  return getComentario(id);
 }
 
 export default pool;
